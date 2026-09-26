@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Sports Predictor Dashboard</title>
+    <style>
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0f0f12, #24242e);
+            min-height: 100vh; display: flex; justify-content: center; align-items: center;
+            color: #ffffff; padding: 20px;
+        }
+        .dashboard-card {
+            background: #111116; border: 1px solid #22222b; width: 100%; max-width: 500px;
+            padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h2 { text-align: center; margin-bottom: 25px; color: #e95905; font-size: 24px; letter-spacing: 1px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #aaa; }
+        input {
+            width: 100%; padding: 15px; background: #1a1a24; border: 1px solid #333344;
+            border-radius: 10px; color: #fff; font-size: 16px; outline: none;
+        }
+        input:focus { border-color: #e95905; }
+        button {
+            width: 100%; padding: 16px; background: #e95905; color: #fff; font-size: 18px;
+            font-weight: 600; border: none; border-radius: 12px; cursor: pointer;
+            transition: all 0.2s ease; margin-top: 10px;
+        }
+        button:hover { background: #ffffff; color: #000000; transform: scale(1.02); }
+        .loading { display: none; text-align: center; margin-top: 15px; color: #e95905; }
+        
+        /* Results Section Styling */
+        .results-box {
+            display: none; margin-top: 30px; padding-top: 20px;
+            border-top: 2px dashed #22222b;
+        }
+        .match-header { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; color: #00ffcc; }
+        .pick-card {
+            background: #1a1a24; padding: 15px; border-radius: 10px; margin-bottom: 12px;
+            border-left: 4px solid #e95905; display: flex; justify-content: space-between; align-items: center;
+        }
+        .pick-card.secondary { border-left-color: #00ffcc; }
+        .label { font-size: 13px; color: #888; display: block; margin-bottom: 4px; }
+        .value { font-size: 16px; font-weight: bold; }
+        .pct { font-size: 18px; font-weight: bold; color: #00ffcc; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-card">
+        <h2>AI SPORTS PREDICTOR MATRIX</h2>
+        
+        <div class="input-group">
+            <label>🏠 Home Vector Team Name</label>
+            <input type="text" id="homeTeam" placeholder="e.g., Niger, Chelsea, South Africa">
+        </div>
+        
+        <div class="input-group">
+            <label>🚀 Away Vector Team Name</label>
+            <input type="text" id="awayTeam" placeholder="e.g., Lesotho, Arsenal, Guinea">
+        </div>
+        
+        <button onclick="runPredictionMatrix()">GENERATE OPTIMAL PROBABILITIES</button>
+        
+        <div class="loading" id="loader">🔄 Querying core master servers & running Poisson loops...</div>
+
+        <!-- Dynamic Results Interface Output Panel -->
+        <div class="results-box" id="resultsBox">
+            <div class="match-header" id="matchHeader">NIGER VS LESOTHO</div>
+            
+            <div class="pick-card">
+                <div>
+                    <span class="label">🔥 PRIMARY SELECTION</span>
+                    <span class="value" id="primaryOption">MATCH OVER 1.5 GOALS</span>
+                </div>
+                <div class="pct" id="primaryConf">95.00%</div>
+            </div>
+
+            <div class="pick-card secondary">
+                <div>
+                    <span class="label">⚡ SECONDARY BACKUP</span>
+                    <span class="value" id="secondaryOption">HOME OR DRAW (1X)</span>
+                </div>
+                <div class="pct" style="color: #00ffcc;" id="secondaryConf">82.40%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. THE FRONTEND JAVA-SCRIPT CONNECTION ENGINE LAYER -->
+    <script>
+        async function runPredictionMatrix() {
+            const home = document.getElementById('homeTeam').value.trim();
+            const away = document.getElementById('awayTeam').value.trim();
+            
+            if(!home || !away) {
+                alert("Please fill in both team parameter fields.");
+                return;
+            }
+
+            // Toggle layout loading views active
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('resultsBox').style.display = 'none';
+
+            try {
+                // THE INTERFACE CONNECTION ENGINE: Shoots data packages directly to your FastAPI Python script!
+                const response = await fetch('/predict', {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify({ home_team: home, away_team: away })
+                    });
+
+                if(!response.ok) throw new Error("Server communication broken.");
+                
+                const data = await response.json();
+
+                // Dynamic UI Box Model parameter injection strings text updates
+                document.getElementById('matchHeader').innerText = `${data.home_team} VS ${data.away_team}`;
+                document.getElementById('primaryOption').innerText = data.primary_option;
+                document.getElementById('primaryConf').innerText = data.primary_confidence;
+                document.getElementById('secondaryOption').innerText = data.secondary_option;
+                document.getElementById('secondaryConf').innerText = data.secondary_confidence;
+
+                // Open final results dashboard layout interface
+                document.getElementById('resultsBox').style.display = 'block';
+            } catch (error) {
+                alert("API Endpoint connection failed. Verify your FastAPI script runner is fully active.");
+            } finally {
+                document.getElementById('loader').style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
