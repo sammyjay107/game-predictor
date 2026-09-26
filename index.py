@@ -174,16 +174,21 @@ def predict_match(request: MatchRequest):
         markets_comparison[f"MATCH OVER {line} GOALS"] = 100.0 - under_prob
         markets_comparison[f"MATCH UNDER {line} GOALS"] = under_prob
 
+       # Ensure your array positions are explicitly targeted with brackets [0] and [1]
     sorted_markets = sorted(markets_comparison.items(), key=lambda x: x[1], reverse=True)
+    
+    option_1_name, option_1_prob = sorted_markets[0]
+    option_2_name, option_2_prob = sorted_markets[1]
     
     return {
         "home_team": request.home_team.upper(),
         "away_team": request.away_team.upper(),
-        "primary_option": sorted_markets[0][0],
-        "primary_confidence": f"{sorted_markets[0][1]:.2f}%",
-        "secondary_option": sorted_markets[1][0],
-        "secondary_confidence": f"{sorted_markets[1][1]:.2f}%"
+        "primary_option": option_1_name,
+        "primary_confidence": f"{option_1_prob:.2f}%",
+        "secondary_option": option_2_name,
+        "secondary_confidence": f"{option_2_prob:.2f}%"
     }
+
 
 if __name__ == "__main__":
     import uvicorn
