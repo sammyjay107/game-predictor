@@ -214,19 +214,22 @@ def predict_match(request: MatchRequest):
         markets_comparison[f"MATCH OVER {line} GOALS"] = 100.0 - under_prob
         markets_comparison[f"MATCH UNDER {line} GOALS"] = under_prob
 
-    sorted_markets = sorted(markets_comparison.items(), key=lambda x: x[1], reverse=True)
+        sorted_markets = sorted(markets_comparison.items(), key=lambda x: x, reverse=True)
+
     
-    option_1_name, option_1_prob = sorted_markets[0]
-    option_2_name, option_2_prob = sorted_markets[1]
-    
+    pick_1 = sorted_markets[0]
+    pick_2 = sorted_markets[1]
+
     return {
         "home_team": home_name.upper(),
         "away_team": away_name.upper(),
-        "primary_option": option_1_name,
-        "primary_confidence": f"{option_1_prob:.2f}%",
-        "secondary_option": option_2_name,
-        "secondary_confidence": f"{option_2_prob:.2f}%"
-    }
+        "primary_option": pick_1[0],
+        "primary_confidence": f"{pick_1[1]:.2f}%",
+        "secondary_option": pick_2[0],
+        "secondary_confidence": f"{pick_2[1]:.2f}%"
+
+       
+        }
 
 if __name__ == "__main__":
     import uvicorn
